@@ -46,7 +46,7 @@ jobs:
           key-alias: ${{ secrets.KEY_ALIAS }}
           key-password: ${{ secrets.KEY_PASSWORD }}
 
-       Verify output with fallback
+      # Verify output with fallback
       - name: Check Output
         continue-on-error: true 
         run: |
