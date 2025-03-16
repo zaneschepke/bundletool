@@ -1,4 +1,4 @@
-# Bundletool Build APKs Action
+# Bundletool build .apks file action
 
 This action downloads `bundletool` and builds a .apks file from an Android App Bundle (AAB).
 
