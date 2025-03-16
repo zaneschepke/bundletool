@@ -56,9 +56,9 @@ jobs:
             echo "Note: app-release.apks was not created (expected with dummy files)"
           fi
 
-      # Upload artifact only if it exists
+       # Upload artifact only if it exists
       - name: Upload Artifact
-        if: exists('app-release.apks') 
+        if: steps.check-output.outputs.file_exists == 'true'
         uses: actions/upload-artifact@v3
         with:
           name: app-apks
