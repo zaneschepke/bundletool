@@ -1,0 +1,77 @@
+name: 'Bundletool action for creating .apks file from an Android App Bundle (.aab)'
+description: 'Download bundletool and build a .apks file from an Android App Bundle (.aab)'
+author: 'Zane Schepke'
+
+inputs:
+  bundletool-version:
+    description: 'Version of bundletool to download'
+    required: true
+    default: '1.18.1'
+  java-version:
+    description: 'Version of Java to set up (11, 17)'
+    required: true
+    default: '17'
+  bundle-file:
+    description: 'Path to the AAB file'
+    required: true
+  output-file:
+    description: 'Path to the output .apks file'
+    required: true
+    default: 'app.apks'
+  keystore-file:
+    description: 'Path to the keystore .jks file'
+    required: true
+  keystore-password:
+    description: 'Keystore password'
+    required: true
+  key-alias:
+    description: 'Keystore key alias'
+    required: true
+  key-password:
+    description: 'Key password'
+    required: true
+
+outputs:
+  apks-path:
+    description: 'Path to the generated .apks file'
+    value: ${{ steps.build-apks.outputs.apks-path }}
+
+runs:
+  using: 'composite'
+  steps:
+
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ inputs.java-version }}
+        distribution: 'temurin'
+
+    - name: Check curl availability
+      shell: bash
+      run: |
+        if ! command -v curl &> /dev/null; then
+          echo "::error::curl is not installed or not found in PATH"
+          exit 1
+        fi
+
+    - name: Download bundletool
+      shell: bash
+      run: |
+        curl -L -o bundletool.jar https://github.com/google/bundletool/releases/download/${{ inputs.bundletool-version }}/bundletool-all-${{ inputs.bundletool-version }}.jar
+
+    - name: Build APKs
+      id: build-apks
+      shell: bash
+      run: |
+        java -jar bundletool.jar build-apks \
+          --bundle "${{ inputs.bundle-file }}" \
+          --output "${{ inputs.output-file }}" \
+          --ks "${{ inputs.keystore-file }}" \
+          --ks-pass "pass:${{ inputs.keystore-password }}" \
+          --ks-key-alias "${{ inputs.key-alias }}" \
+          --key-pass "pass:${{ inputs.key-password }}"
+        echo "apks-path=${{ inputs.output-file }}" >> $GITHUB_OUTPUT
+
+branding:
+  icon: 'package'
+  color: 'blue'
